@@ -1,15 +1,14 @@
 `timescale 1ns/1ps
 
-module UART_TX(
-	input			clk,	// 50,000,000
-	input			a_resetn,
-	input			tx_start,
-	input			b_tick,	// (50,000,000 / 16 / 115,200)
+module UART_TX(	
+	input				clk,	// 50,000,000
+	input				a_resetn,
+	input				tx_start,
+	input				b_tick,	// (50,000,000 / 16 / 115,200)
 	input		[7:0]	d_in,
 	input		[1:0]	parity,
-
-	output	reg		tx_get_data,
-	output	reg		tx
+	output	reg			tx_get_data,
+	output	reg			tx
 );
 
 parameter metastable_tick_count = 16;
@@ -23,9 +22,9 @@ reg [2:0] r_SM_Current_State = 0;
 reg [2:0] r_bit_index = 0;
 reg [7:0] r_tx_data = 0;
 reg [7:0] b_tick_count = 0;
-reg [3:0] parity_count =0;
-
-always@(posedge clk)begin   //clk = 50000000 
+reg [1:0] r_parity_buffer = 0;
+reg	 	  parity_count =0;
+always@(posedge clk or posedge a_resetn)begin   //clk = 50000000 
 
 	if(a_resetn == 1)begin
 		tx <= 1'b1;
@@ -40,6 +39,8 @@ always@(posedge clk)begin   //clk = 50000000
 				if(tx_start == 1'b0)begin
 					tx_get_data = 1'b1;
 					r_tx_data <= d_in; //sending the data frame to buffer
+					r_parity_buffer <= parity; //storing the parity bit into the temporary buffer
+					parity_count <= ~r_tx_data;
 					r_SM_Current_State <= S_Start_Bit;
 				end
 				else begin
@@ -49,7 +50,6 @@ always@(posedge clk)begin   //clk = 50000000
 
 			S_Start_Bit: begin
 				tx <= 1'b0; //sending start of frame
-				tx_get_data = 1'b0;
 				if(b_tick == 1'b1) begin
 					if(b_tick_count < metastable_tick_count)begin
 						b_tick_count <= b_tick_count + 1;
@@ -68,9 +68,6 @@ always@(posedge clk)begin   //clk = 50000000
 
 			S_Data_Bit: begin
 				tx <= r_tx_data[r_bit_index];
-				if(d_in == 1)begin
-					parity_count = parity_count + 1;
-				end
 				//wait for 16 ticks to make sure data has been stable while sending
 				if(b_tick == 1'b1)begin
 					if(b_tick_count < metastable_tick_count)begin
@@ -102,19 +99,19 @@ always@(posedge clk)begin   //clk = 50000000
 
 			S_Parity: begin
 					
-					if(parity == 2'b01)begin    // ODD Parity 
-						if((parity_count % 2) == 0)begin
+					if(r_parity_buffer == 2'b01)begin    // ODD Parity 
+						if(!parity_count)begin
 							tx <= 1'b1;    	
 						end
-						else if ((parity_count % 2) != 0) begin
+						else if (parity_count) begin
 							tx <= 1'b0;
 						end
 					end
-					else if (parity == 2'b10) begin   //Even Parity
-						if((parity_count % 2) == 0)begin
+					else if (r_parity_buffer == 2'b10) begin   //Even Parity
+						if(!parity_count)begin
 							tx <= 1'b0;    	
 						end
-						else if ((parity_count % 2) != 0) begin
+						else if (parity_count) begin
 							tx <= 1'b1;
 						end 
 
