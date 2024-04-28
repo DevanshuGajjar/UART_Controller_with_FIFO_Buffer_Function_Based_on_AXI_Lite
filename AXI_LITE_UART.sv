@@ -62,8 +62,8 @@ module AXI_LITE_UART(
 
 	// Parity Selection Register	// Addr Offset 0xC (Write and Read)
 	reg	[1:0]	parity;		// 0 -> no parity
-					// 1 -> even parity
-					// 2 -> odd parity
+					// 1 -> odd parity
+					// 2 -> even parity
 
 	// Register Storing the FIFO Statuses	// Addr Offset 0x10 (Read Only)
 	wire	[3:0]	fifo_status;		// fifo_status[3] -> tx_fifo_full
