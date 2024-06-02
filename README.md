@@ -7,3 +7,14 @@
 # Design Overview
 
 ![AXI Lite UART Concept Design](https://github.com/DevanshuGajjar/UART_Controller_with_FIFO_Buffer_Function_Based_on_AXI_Lite/blob/main/Images/AXI_LITE_UART_IP.jpg)
+
+The design consists of the IP having AXI-Lite and UART with FIFO serving as the
+buffer between the high-speed and low-speed protocols. 
+
+#  AXI Lite UART IP
+
+1. AXI Lite
+2. Synchronous FIFO
+3. Baudrate Generator
+4. UART Tx
+5. UART Rx
