@@ -6,4 +6,4 @@
 
 # Design Overview
 
-![AXI Lite UART Concept Design](https://github.com/DevanshuGajjar/UART_Controller_with_FIFO_Buffer_Function_Based_on_AXI_Lite/Images/AXI_LITE_UART_IP.jpg)
+![AXI Lite UART Concept Design](https://github.com/DevanshuGajjar/UART_Controller_with_FIFO_Buffer_Function_Based_on_AXI_Lite/blob/main/Images/AXI_LITE_UART_IP.jpg)
